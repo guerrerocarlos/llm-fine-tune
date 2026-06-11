@@ -164,6 +164,32 @@ cd /home/gnu/colab-local-dgx-spark
 ./scripts/start_jupyter.sh
 ```
 
+The launcher binds to all interfaces by default:
+
+```bash
+jupyter lab --ip=0.0.0.0 --port=8888 --no-browser
+```
+
+This makes it reachable through Tailscale on this machine:
+
+```text
+http://100.92.158.40:8888
+```
+
+The Jupyter token is printed when the server starts. To list running servers and tokens:
+
+```bash
+cd /home/gnu/colab-local-dgx-spark
+source .venv/bin/activate
+jupyter server list
+```
+
+To force local-only binding instead:
+
+```bash
+JUPYTER_IP=127.0.0.1 ./scripts/start_jupyter.sh
+```
+
 It serves notebooks from:
 
 ```text

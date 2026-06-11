@@ -121,7 +121,7 @@ cd "$(dirname "$0")/.."
 source .venv/bin/activate
 
 exec jupyter lab \
-  --ip=127.0.0.1 \
+  --ip="${JUPYTER_IP:-0.0.0.0}" \
   --port=8888 \
   --no-browser
 SH
@@ -175,6 +175,9 @@ Open the notebook:
 Start Jupyter:
   cd "$WORKSPACE"
   ./scripts/start_jupyter.sh
+
+Tailscale URL:
+  http://100.92.158.40:8888
 
 If Gemma access failed:
   1. Accept terms at https://huggingface.co/google/gemma-3-270m-it
