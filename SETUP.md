@@ -254,6 +254,43 @@ gradient_checkpointing=True
 
 This lowers peak VRAM while keeping the effective training batch close to the notebook default.
 
+## Troubleshooting
+
+### `AttributeError: partially initialized module 'torch' has no attribute 'fx'`
+
+This can happen if the notebook kernel is interrupted while `torch`, `accelerate`, or `transformers` is still importing. Python can keep a half-imported `torch` module in the live kernel process, and later imports then fail with a misleading circular import error.
+
+Fix it by restarting the notebook kernel, then rerunning the import cells from the top:
+
+```text
+Kernel -> Restart Kernel
+```
+
+Or from WSL, stop the active notebook kernel process and let Jupyter start a fresh one:
+
+```bash
+ps -ef | rg 'ipykernel'
+kill <ipykernel_pid>
+```
+
+Then verify the environment itself is still healthy:
+
+```bash
+cd /home/gnu/colab-local-dgx-spark
+source .venv/bin/activate
+python - <<'PY'
+import transformers
+import trl
+import datasets
+import accelerate
+import gradio
+import torch
+
+print("fresh import check ok")
+print("torch", torch.__version__, "fx", hasattr(torch, "fx"), "cuda", torch.cuda.is_available())
+PY
+```
+
 ## One-Shot Setup
 
 From this repo:
