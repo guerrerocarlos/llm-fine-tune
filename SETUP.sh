@@ -76,6 +76,10 @@ for cell in notebook.get("cells", []):
             "per_device_train_batch_size=16": "per_device_train_batch_size=1",
             "per_device_eval_batch_size=16": "per_device_eval_batch_size=1",
             "gradient_checkpointing=False": "gradient_checkpointing=True",
+            '"mrdbourke/FoodExtract-gemma-3-270m-fine-tune-v1"': '"guerrerocarlos/FoodExtract-gemma-3-270m-fine-tune-v1"',
+            "https://huggingface.co/spaces/mrdbourke/FoodExtract-v1": "https://huggingface.co/spaces/guerrerocarlos/FoodExtract-v1",
+            "https://mrdbourke-foodextract-v1.hf.space": "https://guerrerocarlos-foodextract-v1.hf.space",
+            "`mrdbourke`": "`guerrerocarlos`",
             "report_to=None": 'report_to="none"',
         }
 

@@ -223,6 +223,14 @@ hf auth login
 hf auth whoami
 ```
 
+The notebook's model upload cells are patched to publish under this Hugging Face account:
+
+```text
+guerrerocarlos/FoodExtract-gemma-3-270m-fine-tune-v1
+```
+
+Use a Hugging Face token with write permission when running the upload cells. A read-only token can download the gated Gemma model but cannot create or upload model repos.
+
 If `HF_TOKEN` is already available in the shell, the setup script can log in automatically with:
 
 ```bash
@@ -271,6 +279,22 @@ report_to="none"
 ```
 
 The setup script patches the downloaded notebook automatically. If you already have the notebook open, update the `SFTConfig` cell manually, then rerun that cell before creating `SFTTrainer`.
+
+### `403 Forbidden: You have read access but not the required permissions for this operation`
+
+This happens if the notebook tries to upload to someone else's model repo, such as:
+
+```text
+mrdbourke/FoodExtract-gemma-3-270m-fine-tune-v1
+```
+
+Use your own Hugging Face namespace instead:
+
+```python
+repo_id = "guerrerocarlos/FoodExtract-gemma-3-270m-fine-tune-v1"
+```
+
+Also update any later demo `MODEL_PATH` value to the same repo id. If this still fails, run `hf auth whoami` and confirm the active token has write permission.
 
 ### `OutOfMemoryError: CUDA out of memory`
 
