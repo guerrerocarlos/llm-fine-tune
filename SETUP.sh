@@ -56,6 +56,35 @@ cd "$WORKSPACE"
 log "Downloading notebook"
 curl -L "$NOTEBOOK_URL" -o "$NOTEBOOK_FILE"
 
+log "Patching notebook for current TRL/Transformers integration settings"
+python - <<'PY'
+import json
+from pathlib import Path
+
+notebook_path = Path("NVIDIA-DGX-Spark-hugging_face_llm_full_fine_tune_tutorial-VIDEO.ipynb")
+notebook = json.loads(notebook_path.read_text())
+changed = False
+
+for cell in notebook.get("cells", []):
+    source = cell.get("source")
+    if not isinstance(source, list):
+        continue
+
+    updated_source = []
+    for line in source:
+        updated_line = line.replace("report_to=None", 'report_to="none"')
+        if updated_line != line:
+            changed = True
+        updated_source.append(updated_line)
+    cell["source"] = updated_source
+
+if changed:
+    notebook_path.write_text(json.dumps(notebook, indent=1, ensure_ascii=False) + "\n")
+    print("Updated SFTConfig report_to=None to report_to=\"none\".")
+else:
+    print("No SFTConfig report_to=None setting found.")
+PY
+
 log "Creating Python 3.12 virtual environment"
 if [[ "${RESET_ENV:-0}" == "1" ]]; then
   uv venv --python 3.12 --clear .venv

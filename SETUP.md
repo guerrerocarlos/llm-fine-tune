@@ -256,6 +256,22 @@ This lowers peak VRAM while keeping the effective training batch close to the no
 
 ## Troubleshooting
 
+### `ValueError: None is not supported, only azure_ml, comet_ml, ... are supported`
+
+This comes from the notebook's `SFTConfig` cell if it contains:
+
+```python
+report_to=None
+```
+
+With the current `transformers`/`trl` stack, disable reporting integrations with the string value:
+
+```python
+report_to="none"
+```
+
+The setup script patches the downloaded notebook automatically. If you already have the notebook open, update the `SFTConfig` cell manually, then rerun that cell before creating `SFTTrainer`.
+
 ### `AttributeError: partially initialized module 'torch' has no attribute 'fx'`
 
 This can happen if the notebook kernel is interrupted while `torch`, `accelerate`, or `transformers` is still importing. Python can keep a half-imported `torch` module in the live kernel process, and later imports then fail with a misleading circular import error.
