@@ -72,7 +72,26 @@ for cell in notebook.get("cells", []):
 
     updated_source = []
     for line in source:
-        updated_line = line.replace("report_to=None", 'report_to="none"')
+        replacements = {
+            "per_device_train_batch_size=16": "per_device_train_batch_size=1",
+            "per_device_eval_batch_size=16": "per_device_eval_batch_size=1",
+            "gradient_checkpointing=False": "gradient_checkpointing=True",
+            "report_to=None": 'report_to="none"',
+        }
+
+        updated_line = line
+        for old, new in replacements.items():
+            updated_line = updated_line.replace(old, new)
+
+        if "gradient_checkpointing=True" in updated_line:
+            updated_source.append(updated_line)
+            accumulation_line = "    gradient_accumulation_steps=16,\n"
+            if accumulation_line not in source and accumulation_line not in updated_source:
+                updated_source.append(accumulation_line)
+            if updated_line != line:
+                changed = True
+            continue
+
         if updated_line != line:
             changed = True
         updated_source.append(updated_line)
@@ -80,9 +99,9 @@ for cell in notebook.get("cells", []):
 
 if changed:
     notebook_path.write_text(json.dumps(notebook, indent=1, ensure_ascii=False) + "\n")
-    print("Updated SFTConfig report_to=None to report_to=\"none\".")
+    print("Updated SFTConfig for 12 GB VRAM and report_to=\"none\".")
 else:
-    print("No SFTConfig report_to=None setting found.")
+    print("No SFTConfig changes needed.")
 PY
 
 log "Creating Python 3.12 virtual environment"
@@ -148,6 +167,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 source .venv/bin/activate
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 
 exec jupyter lab \
   --ip="${JUPYTER_IP:-0.0.0.0}" \

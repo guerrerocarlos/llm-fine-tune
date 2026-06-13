@@ -246,13 +246,13 @@ gradient_checkpointing=False
 to:
 
 ```python
-per_device_train_batch_size=4
-per_device_eval_batch_size=4
-gradient_accumulation_steps=4
+per_device_train_batch_size=1
+per_device_eval_batch_size=1
+gradient_accumulation_steps=16
 gradient_checkpointing=True
 ```
 
-This lowers peak VRAM while keeping the effective training batch close to the notebook default.
+This lowers peak VRAM while keeping the effective training batch close to the notebook default. The setup script patches the downloaded notebook to use these safer RTX 5070 settings automatically.
 
 ## Troubleshooting
 
@@ -271,6 +271,32 @@ report_to="none"
 ```
 
 The setup script patches the downloaded notebook automatically. If you already have the notebook open, update the `SFTConfig` cell manually, then rerun that cell before creating `SFTTrainer`.
+
+### `OutOfMemoryError: CUDA out of memory`
+
+After a CUDA OOM, restart the notebook kernel before retrying. PyTorch can keep failed allocations reserved in the live kernel process, so changing batch settings without restarting may still report `0 bytes is free`.
+
+Use the smaller `SFTConfig` settings from the VRAM note above:
+
+```python
+per_device_train_batch_size=1
+per_device_eval_batch_size=1
+gradient_accumulation_steps=16
+gradient_checkpointing=True
+```
+
+The Jupyter launcher also sets:
+
+```bash
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+```
+
+If Jupyter was already running before this change, stop it and restart it with:
+
+```bash
+cd /home/gnu/colab-local-dgx-spark
+./scripts/start_jupyter.sh
+```
 
 ### `AttributeError: partially initialized module 'torch' has no attribute 'fx'`
 
